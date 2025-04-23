@@ -99,7 +99,7 @@ Setup Steps:
    - Create a new environment named **distrl**:
    
      ```bash
-     conda create -n distrl python=3.8
+     conda create -n distrl python=3.10 -y
      conda activate distrl
      ```
 
