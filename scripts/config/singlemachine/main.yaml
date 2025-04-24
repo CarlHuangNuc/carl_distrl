@@ -51,6 +51,6 @@ offline_data_path: null
 # ===================
 collect_iterations: 1
 bsize: 1 # number of emulators parallelly on the machine
-rollout_size: 8 # how many trajectories to collect between training iterations (should be multiple of bsize)
+rollout_size: 2 # how many trajectories to collect between training iterations (should be multiple of bsize)
 avd_name: 'test_Android'
 save_images: False
