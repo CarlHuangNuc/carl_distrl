@@ -122,6 +122,7 @@ Setup Steps:
    - Follow the [Environment Setup Guide](./env_setup.md) to configure the environment for Android emulator.
    - Follow digirl and setup android 28
    - pip install --upgrade transformers
+   - pip install httpx==0.27.2
 
 4. Test the Setup:
    - Set the configurations in the files `multimachine/default.yaml` and `multimachine/worker.yaml`.
