@@ -18,7 +18,7 @@ android_avd_home: '/mnt/huangke1/.android/avd'
 emulator_path: '/mnt/huangke1/.android/emulator/emulator'
 adb_path: '/mnt/huangke1/.android/platform-tools/adb'
 cache_dir: '/mnt/huangke1/.cache'
-assets_path: '/mnt/huangke1/distrl-open/assets/task_set'
+assets_path: '/mnt/huangke1/carl_distrl/assets/task_set'
 
 # ===================
 # ====== algo =======
