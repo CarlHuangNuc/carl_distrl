@@ -2,7 +2,7 @@
 # ====== task ======
 # ===================
 task_set: "webshop" # "general" or "webshop"
-task_split: "train" # "train" or "test"
+task_split: "test" # "train" or "test"
 eval_sample_mode: "sequential" # "random" or "sequential"
 max_steps: 10
 
@@ -10,7 +10,7 @@ max_steps: 10
 # ====== basic ======
 # ===================
 train_mode: "online" # "offline" or "online" or "off2on"
-task_mode: "train" # "train"
+task_mode: "evaluate" # "train"
 
 # ===================
 # ====== token ======
