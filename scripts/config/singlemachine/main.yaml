@@ -7,24 +7,24 @@ defaults:
 # ===================
 parallel: "single" # "single" or "host" or "worker"
 sync_mode: "sync"  # "async", "sync"
-save_path: '/home/<usrname>/logs/host'
-aggregated_save_path: '/home/<usrname>/logs/aggregate'
+save_path: '/mnt/huangke1/logs/host'
+aggregated_save_path: '/mnt/huangke1/logs/aggregate'
 synthetic: False
 
 # ===================
 # ====== path =======
 # ===================
-android_avd_home: '/home/<usrname>/.android/avd'
-emulator_path: '/home/<usrname>/.android/emulator/emulator'
-adb_path: '/home/<usrname>/.android/platform-tools/adb'
-cache_dir: '/home/<usrname>/.cache'
-assets_path: '/home/<usrname>/DistRL/assets/task_set'
+android_avd_home: '/mnt/huangke1/.android/avd'
+emulator_path: '/mnt/huangke1/.android/emulator/emulator'
+adb_path: '/mnt/huangke1/.android/platform-tools/adb'
+cache_dir: '/mnt/huangke1/.cache'
+assets_path: '/mnt/huangke1/carl_distrl/assets/task_set'
 
 # ===================
 # ====== model ======
 # ===================
-policy_lm: '/home/<usrname>/AutoUI/Auto-UI-Base'
-critic_lm: 'roberta-base'
+policy_lm: '/mnt/huangke1/auto-UI/cooelf/Auto-UI/Auto-UI-Base'
+critic_lm: '/mnt/huangke1/auto-UI/roberta-base'
 
 # ===================
 # ====== train ======
@@ -40,17 +40,17 @@ warmup_iter: 0 # how many iterations to only collect data and evaluate before tr
 # start_checkpoint_path: '/home/distrl/models/ckpts/general-off2on-digirl'
 collect_num: 128
 
-# offline_data_path: null
-offline_data_path: '/home/<usrname>/data/distrl_data/warmup_trajectories_penalty.pt'
-offline_actor_iterations: 30
-offline_critic_iterations: 20
-offline_trajectory_critic_iterations: 20
+offline_data_path: null
+#offline_data_path: '/home/<usrname>/data/distrl_data/warmup_trajectories_penalty.pt'
+#offline_actor_iterations: 30
+#offline_critic_iterations: 20
+#offline_trajectory_critic_iterations: 20
 
 # ===================
 # ===== collect =====
 # ===================
 collect_iterations: 1
-bsize: 8 # number of emulators parallelly on the machine
+bsize: 1 # number of emulators parallelly on the machine
 rollout_size: 8 # how many trajectories to collect between training iterations (should be multiple of bsize)
-avd_name: 'android_30'
+avd_name: 'Test_Android'
 save_images: False
