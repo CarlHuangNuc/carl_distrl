@@ -140,6 +140,9 @@ Setup Steps:
     accelerate launch --config_file config/accelerate_config/default_config.yaml scripts/run.py --config-path config/multimachine --config-name host
     ```
 
+6. run from ...single machine::
+
+ accelerate launch --config_file scripts/config/accelerate_config/default_config.yaml scripts/run.py --config-path config/singlemachine --config-name main
 
 
 ## 📄 License
