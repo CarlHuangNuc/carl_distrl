@@ -115,7 +115,7 @@ def batch_interact_environment(agent, env, num_trajectories,\
                                 "Step": steps,
                                 "Walltime": end
                             }
-                            wandb.log(info)
+#                            wandb.log(info)
                         
                         if env.feature_extractor is not None:
                             with torch.no_grad():
