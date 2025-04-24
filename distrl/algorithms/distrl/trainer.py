@@ -14,7 +14,7 @@ USE_RETRACE=True
 REG=False
 
 
-from validity_checker import ActionValidityChecker
+from .validity_checker import ActionValidityChecker
 
 # # Initialize the validity checker with your Gemini API key
 # gemini_key = "YOUR_GEMINI_API_KEY"
