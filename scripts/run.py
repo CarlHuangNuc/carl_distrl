@@ -110,7 +110,7 @@ def main(config: "DictConfig"):
             temp_path=os.path.join(config.save_path, "images"),
             save_images=config.save_images,
             all_tasks=all_tasks,
-            task_split=config.task_split,
+#            task_split=config.task_split,
             sample_mode=sample_mode
         )
         return env
