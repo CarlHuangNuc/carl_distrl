@@ -46,4 +46,4 @@ max_new_tokens: 128
 # ===================
 # ====== log ======
 # ===================
-use_wandb: True
+use_wandb: False
