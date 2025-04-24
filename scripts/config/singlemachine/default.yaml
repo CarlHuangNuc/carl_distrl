@@ -1,7 +1,7 @@
 # ===================
 # ====== task ======
 # ===================
-task_set: "general" # "general" or "webshop"
+task_set: "webshop" # "general" or "webshop"
 task_split: "train" # "train" or "test"
 eval_sample_mode: "sequential" # "random" or "sequential"
 max_steps: 10
