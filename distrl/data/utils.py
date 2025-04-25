@@ -81,7 +81,7 @@ class ReplayBuffer:
             self.dones = np.empty((self.max_size, *done.shape), dtype=done.dtype)
             self.mc_returns = np.empty((self.max_size, *mc_return.shape), dtype=mc_return.dtype)
             self.penalties = np.empty((self.max_size, *penalty.shape), dtype=penalty.dtype)
-            self.log_probs = np.empty((self.max_size, *log_prob.shape), dtype=log_prob.numpy().dtype)
+            self.log_probs = np.empty((self.max_size, *log_prob.cpu().shape), dtype=log_prob.cpu().numpy().dtype)
             
         index = self.data_pointer % self.max_size
         
