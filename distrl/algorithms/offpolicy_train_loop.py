@@ -504,8 +504,7 @@ def offpolicy_train_loop(agent,
                     trainer.save_policy(os.path.join(save_path, "trainer_current_policy.pt"))
 
             early_stop = torch.zeros(1, dtype=torch.bool, device=accelerator.device)
-#            if use_wandb and accelerator.is_main_process:
-            if 1：
+            if accelerator.is_main_process:
                 end_time = time.time()
                 info.update({
                     "iter_finish_walltime": end_time,
