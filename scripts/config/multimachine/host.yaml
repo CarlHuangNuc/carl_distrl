@@ -7,24 +7,24 @@ defaults:
 # ===================
 parallel: "host" # "single" or "host" or "worker"
 sync_mode: "async"  # "async", "sync"
-save_path: '/home/distrl/logs/host'
-aggregated_save_path: '/home/distrl/logs/aggregate'
+save_path: '/mnt/huangke1/logs/host'
+aggregated_save_path: '/mnt/huangke1/logs/aggregate'
 synthetic: False
 
 # ===================
 # ====== path =======
 # ===================
-android_avd_home: '/home/distrl/.android/avd'
-emulator_path: '/home/distrl/.android/emulator/emulator'
-adb_path: '/home/distrl/.android/platform-tools/adb'
-cache_dir: '/home/distrl/.cache'
-assets_path: '/home/distrl/DistRL/assets/task_set'
+android_avd_home: '/mnt/huangke1/.android/avd'
+emulator_path: '/mnt/huangke1/.android/emulator/emulator'
+adb_path: '/mnt/huangke1/.android/platform-tools/adb'
+cache_dir: '/mnt/huangke1/.cache'
+assets_path: '/mnt/huangke1/carl_distrl/assets/task_set'
 
 # ===================
 # ====== model ======
 # ===================
-policy_lm: '/home/distrl/AutoUI/Auto-UI-Base'
-critic_lm: 'roberta-base'
+policy_lm: '/mnt/huangke1/auto-UI/cooelf/Auto-UI/Auto-UI-Base'
+critic_lm: '/mnt/huangke1/auto-UI/roberta-base'
 
 # ===================
 # ====== train ======
@@ -37,23 +37,23 @@ capacity: 10000 # replay buffer size
 batch_size: 2 # replay buffer sample batch size
 warmup_iter: 0 # how many iterations to only collect data and evaluate before training
 
-start_checkpoint_path: '/home/distrl/models/ckpts/webshop-off2on-digirl'
+#start_checkpoint_path: '/home/distrl/models/ckpts/webshop-off2on-digirl'
 collect_num: 128
 # collect_time: null
 
-# offline_data_path: null
-offline_data_path: '/home/<usrname>/data/distrl_data/warmup_trajectories_penalty.pt'
-offline_actor_iterations: 30
-offline_critic_iterations: 20
-offline_trajectory_critic_iterations: 20
+offline_data_path: null
+#offline_data_path: '/home/<usrname>/data/distrl_data/warmup_trajectories_penalty.pt'
+#offline_actor_iterations: 30
+#offline_critic_iterations: 20
+#offline_trajectory_critic_iterations: 20
 
 # ===================
 # ===== remote ======
 # ===================
-worker_temp_path: '/home/<usrname>/logs/worker'
-worker_run_path: "/home/<usrname>/DistRL/scripts"
-worker_ips: [worker_ip1, worker_ip2]
-worker_username: <usrname>
+worker_temp_path: '/mnt/huangke1/logs/worker'
+worker_run_path: "/mnt/huangke1/carl_distrl/scripts"
+worker_ips: ["111.51.90.14"]
+worker_username: root
 num_threads: 8
 
 # ===================
