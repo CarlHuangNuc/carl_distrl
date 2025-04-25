@@ -7,8 +7,8 @@ defaults:
 # ===================
 parallel: "single" # "single" or "host" or "worker"
 sync_mode: "sync"  # "async", "sync"
-save_path: '/mnt/huangke1/logs/host'
-aggregated_save_path: '/mnt/huangke1/logs/aggregate'
+save_path: '/mnt/huangke1/logs/single/host'
+aggregated_save_path: '/mnt/huangke1/logs/single/aggregate'
 synthetic: False
 
 # ===================
