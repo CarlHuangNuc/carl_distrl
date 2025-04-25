@@ -17,6 +17,7 @@ worker_traj_lock = asyncio.Lock()
 
 def initialize_workers(worker_ips, worker_username):
     """Asdd workers to known hosts and kill existing processes"""
+    """
     for worker_ip in worker_ips:
         os.system(f"ssh-keyscan -H {worker_ip} >> ~/.ssh/known_hosts")
     for worker_ip in worker_ips:
@@ -25,12 +26,14 @@ def initialize_workers(worker_ips, worker_username):
     for worker_ip in worker_ips:
         os.system(f"ssh {worker_username}@{worker_ip} 'skill -u {worker_username}'")
     time.sleep(5)
-
+    """
 
 async def execute_command(host, username, command):
     """Execute command remotely"""
+    password="1i998iVUb~"
+    port=44981
     try:
-        async with asyncssh.connect(host, username=username) as conn:
+        async with asyncssh.connect(host, username=username, password=password, port=port, known_hosts=None) as conn:
             # Run the command in the background using nohup and &
             result = await conn.run(command, check=True)
             return result.stdout.strip()
