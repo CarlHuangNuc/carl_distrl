@@ -8,6 +8,10 @@ from queue import Queue
 import random
 import subprocess
 
+
+password="1i998iVUb~"
+port=44981
+
 # Queue to store aggregated trajectories
 trajectory_queue = Queue()
 TMP_PATH = '/home/<usrname>/research/LLM_agent/logs/multimachine/tmp'
@@ -30,8 +34,8 @@ def initialize_workers(worker_ips, worker_username):
 
 async def execute_command(host, username, command):
     """Execute command remotely"""
-    password="1i998iVUb~"
-    port=44981
+#    password="1i998iVUb~"
+#    port=44981
     try:
         async with asyncssh.connect(host, username=username, password=password, port=port, known_hosts=None) as conn:
             # Run the command in the background using nohup and &
@@ -56,7 +60,7 @@ async def execute_command_background(host, username, commands, log_path='/dev/nu
 
 async def copy_file_from_remote(host, username, remote_path, local_path):
     try:
-        async with asyncssh.connect(host, username=username) as conn:
+        async with asyncssh.connect(host, username=username, password=password, port=port, known_hosts=None) as conn:
             async with conn.start_sftp_client() as sftp:
                 await sftp.get(remote_path, local_path, recurse=True)
     except (OSError, asyncssh.Error) as exc:
