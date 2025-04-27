@@ -48,7 +48,7 @@ async def execute_command(host, username, command):
 async def execute_command_background(host, username, commands, log_path='/dev/null'):
     """Execute command in the background remotely"""
     try:
-        async with asyncssh.connect(host, username=username) as conn:
+        async with asyncssh.connect(host, username=username, password=password, port=port, known_hosts=None) as conn:
             # Run the command in the background using nohup and &
             commands[-1] = f"nohup {commands[-1]} >> {log_path} 2>&1 &"
             commands.append("echo $!")
@@ -69,7 +69,7 @@ async def copy_file_from_remote(host, username, remote_path, local_path):
 
 async def copy_file_to_remote(host, username, local_path, remote_temp_path, remote_final_path=None):
     try:
-        async with asyncssh.connect(host, username=username) as conn:
+        async with asyncssh.connect(host, username=username, password=password, port=port, known_hosts=None) as conn:
             await conn.run(f"rm -rf {remote_temp_path}", check=True)
             copy_command = f"scp -r {local_path} {username}@{host}:{remote_temp_path}"
             result = subprocess.run(copy_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
