@@ -52,9 +52,9 @@ offline_data_path: null
 # ===================
 worker_temp_path: '/mnt/huangke1/logs/worker'
 worker_run_path: "/mnt/huangke1/carl_distrl/scripts"
-worker_ips: ["111.51.90.14"]
+worker_ips: [worker_ip1]
 worker_username: root
-num_threads: 8
+num_threads: 1
 
 # ===================
 # ===== distrl ======
