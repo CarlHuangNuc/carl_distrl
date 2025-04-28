@@ -123,6 +123,7 @@ Setup Steps:
    - Follow digirl and setup android 28
    - pip install --upgrade transformers
    - pip install httpx==0.27.2
+   - apt-get install sshpass (ssh ..password...carl)
 
 4. Test the Setup:
    - Set the configurations in the files `multimachine/default.yaml` and `multimachine/worker.yaml`.
