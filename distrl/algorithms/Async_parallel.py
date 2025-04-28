@@ -11,7 +11,8 @@ import subprocess
 # Queue to store aggregated trajectories
 trajectory_queue = Queue()
 TMP_PATH = '/home/<usrname>/research/LLM_agent/logs/multimachine/tmp'
-
+password="1i998iVUb~"
+port=44981
 worker_traj_lock = asyncio.Lock()
 
 
@@ -30,7 +31,7 @@ def initialize_workers(worker_ips, worker_username):
 async def execute_command(host, username, command):
     """Execute command remotely"""
     try:
-        async with asyncssh.connect(host, username=username) as conn:
+        async with asyncssh.connect(host, username=username, password=password) as conn:
             # Run the command in the background using nohup and &
             result = await conn.run(command, check=True)
             return result.stdout.strip()
@@ -41,7 +42,7 @@ async def execute_command(host, username, command):
 async def execute_command_background(host, username, commands, log_path='/dev/null'):
     """Execute command in the background remotely"""
     try:
-        async with asyncssh.connect(host, username=username) as conn:
+        async with asyncssh.connect(host, username=username, password=password) as conn:
             # Run the command in the background using nohup and &
             commands[-1] = f"nohup {commands[-1]} >> {log_path} 2>&1 &"
             commands.append("echo $!")
@@ -53,7 +54,7 @@ async def execute_command_background(host, username, commands, log_path='/dev/nu
 
 async def copy_file_from_remote(host, username, remote_path, local_path):
     try:
-        async with asyncssh.connect(host, username=username) as conn:
+        async with asyncssh.connect(host, username=username, password=password) as conn:
             async with conn.start_sftp_client() as sftp:
                 await sftp.get(remote_path, local_path, recurse=True)
     except (OSError, asyncssh.Error) as exc:
@@ -62,9 +63,9 @@ async def copy_file_from_remote(host, username, remote_path, local_path):
 
 async def copy_file_to_remote(host, username, local_path, remote_temp_path, remote_final_path=None):
     try:
-        async with asyncssh.connect(host, username=username) as conn:
+        async with asyncssh.connect(host, username=username, password=password) as conn:
             await conn.run(f"rm -rf {remote_temp_path}", check=True)
-            copy_command = f"scp -r {local_path} {username}@{host}:{remote_temp_path}"
+            copy_command = f"sshpass -p {password} scp -P {port} -r {local_path} {username}@{host}:{remote_temp_path}"
             result = subprocess.run(copy_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             assert result.returncode == 0, f"{result.stderr}"
             if remote_final_path is not None:
