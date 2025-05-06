@@ -21,10 +21,10 @@ def initialize_workers(worker_ips, worker_username):
     for worker_ip in worker_ips:
         os.system(f"ssh-keyscan -H {worker_ip} >> ~/.ssh/known_hosts")
     for worker_ip in worker_ips:
-        os.system(f"ssh {worker_username}@{worker_ip} 'pkill -U {worker_username}'")
+        os.system(f"sshpass -p {password} ssh -P {port} {worker_username}@{worker_ip} 'pkill -U {worker_username}'")
     time.sleep(5)
     for worker_ip in worker_ips:
-        os.system(f"ssh {worker_username}@{worker_ip} 'skill -u {worker_username}'")
+        os.system(f"sshpass -p {password} ssh -P {port} {worker_username}@{worker_ip} 'skill -u {worker_username}'")
     time.sleep(5)
 
 
