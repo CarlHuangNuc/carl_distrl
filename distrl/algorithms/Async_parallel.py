@@ -27,7 +27,6 @@ def initialize_workers(worker_ips, worker_username):
         os.system(f"sshpass -p {password} ssh -P {port} {worker_username}@{worker_ip} 'skill -u {worker_username}'")
     time.sleep(5)
 
-
 async def execute_command(host, username, command):
     """Execute command remotely"""
     try:
@@ -238,20 +237,24 @@ async def remote_collect_trajectories_async(save_path, worker_temp_path, worker_
     # Initialize workers
     print(f">>> In async collection with thread number {num_threads}...")
     print(">>> Start collecting...")
+    '''
     if not synthetic: 
         initialize_workers(worker_ips, worker_username)
-
+    '''
     # Setup worker environment
     print(">>> Start setting up workers...")
+    '''
     if not synthetic: 
         setup_tasks = [setup_worker(worker_ip, worker_username, worker_temp_path) for worker_ip in worker_ips]
         await asyncio.gather(*setup_tasks)
-    
+    '''
     # Distribute the trainer to all workers (manually copy the files in advance, so I commented these codes)
     print(">>> Start distributing policy model...")
+    '''
     if not synthetic: 
         distribute_tasks = [distribute_trainer(worker_ip, worker_username, save_path, worker_temp_path) for worker_ip in worker_ips]
         await asyncio.gather(*distribute_tasks)
+    '''    
     print(">>> Finish distributing policy model...")
     
     # Start the continuous trainer distribution task in the background
