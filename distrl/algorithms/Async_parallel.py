@@ -159,8 +159,9 @@ async def start_trajectory_collection(worker_ip, worker_username, worker_run_pat
                 command_suffix = command_suffix + f' +wandb_run_name={wandb_run_name}'
             #commands = [f"export CUDA_VISIBLE_DEVICES={thread_id}", "conda activate distrl", f"cd {worker_run_path}", f"python run.py --config-path config/multimachine --config-name worker +thread_id={thread_id} +worker_name={worker_name}{command_suffix}"]
             #pid = await execute_command_background(worker_ip, worker_username, commands, log_path=f"/home/<usrname>/logs/worker/{thread_id}.log")
-            commands = ["export PATH=/mnt/huangke1/new_miniconda3/bin:$PATH", "conda init", "cd /mnt/huangke1", "source /mnt/huangke1/.newbashrc", "export WANDB_DISABLED=true",
-                    "source /mnt/huangke1/new_miniconda3/etc/profile.d/conda.sh", "conda activate distrl_v9",f"cd {worker_run_path}", f"export CUDA_VISIBLE_DEVICES={thread_id}", f"python run.py --config-path config/multimachine --config-name worker +thread_id={thread_id} +worker_name={worker_name}"]
+            commands = ["export PATH=/mnt/huangke1/new_miniconda3/bin:$PATH", "conda init",
+                                                    "source /mnt/huangke1/new_miniconda3/etc/profile.d/conda.sh","source /mnt/huangke1/.newbashrc", "conda activate distrl_v9",f"cd {worker_run_path}", f"export CUDA_VISIBLE_DEVICES={thread_id}","export ANDROID_HOME=/mnt/huangke1/.android/", "export SDK=/mnt/huangke1/.android/","export ANDROID_SDK_ROOT=/mnt/huangke1/.android/","export PATH=$SDK/emulator:$SDK/tools:$SDK/tools/bin:$SDK/platform-tools:$PATH","export HOME=/mnt/huangke1", f"python run.py --config-path config/multimachine --config-name worker +thread_id={thread_id} +worker_name={worker_name}"]
+        
             pid = await execute_command_background(worker_ip, worker_username, commands, log_path=f"/mnt/huangke1/logs/worker/{thread_id}.log")
             pid  = pid.split("\n")[-1]
             thread_pids[worker_ip][thread_id] = int(pid)
