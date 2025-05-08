@@ -27,7 +27,7 @@ from distrl.algorithms.Async_parallel import remote_collect_trajectories_async
 
 
 # USE_DPER = False # Using DPER in replay buffer
-MIN_BUFFER_SIZE = 10 
+MIN_BUFFER_SIZE = 5 
 
 
 class NpEncoder(json.JSONEncoder):
