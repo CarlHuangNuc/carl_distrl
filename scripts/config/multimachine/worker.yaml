@@ -29,9 +29,9 @@ critic_lm: '/mnt/huangke1/auto-UI/roberta-base'
 # ===================
 # ===== collect =====
 # ===================
-collect_iterations: 1
-bsize: 1 # number of emulators parallelly on the machine
-rollout_size: 2 # how many trajectories to collect between training iterations (should be multiple of bsize)
+collect_iterations: 10
+bsize: 4 # number of emulators parallelly on the machine
+rollout_size: 4 # how many trajectories to collect between training iterations (should be multiple of bsize)
 
 # ===================
 # ====== eval =======
