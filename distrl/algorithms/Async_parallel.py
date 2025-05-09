@@ -11,8 +11,8 @@ import subprocess
 # Queue to store aggregated trajectories
 trajectory_queue = Queue()
 TMP_PATH = '/home/<usrname>/research/LLM_agent/logs/multimachine/tmp'
-password="1i998iVUb~"
-port=44981
+password="lE244#!M-9"
+port=22
 worker_traj_lock = asyncio.Lock()
 
 
