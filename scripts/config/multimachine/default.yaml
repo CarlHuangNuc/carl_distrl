@@ -23,7 +23,7 @@ gemini_key: '<your gemini key>'
 # ===== trainer =====
 # ===================
 train_algorithm: "distrl" # "distrl", "digirl" or "filteredbc"
-grad_accum_steps: 32
+grad_accum_steps: 1
 epochs: 5 # number of epochs for the critic each witeration
 actor_epochs: 20 # number of epochs for training the actor each iteration
 lm_lr: 1e-4
