@@ -34,7 +34,7 @@ train_time: 100 # (in minutes) -1 for unlimited
 save_freq: 1
 
 capacity: 10000 # replay buffer size
-batch_size: 2 # replay buffer sample batch size
+batch_size: 1 # replay buffer sample batch size
 warmup_iter: 0 # how many iterations to only collect data and evaluate before training
 
 #start_checkpoint_path: '/home/distrl/models/ckpts/webshop-off2on-digirl'
@@ -59,7 +59,7 @@ num_threads: 1
 # ===================
 # ===== distrl ======
 # ===================
-use_retrace: True
+use_retrace: False
 use_entropy: False
 use_dper: False
 dper_w1: 50
