@@ -159,7 +159,7 @@ def main(config: "DictConfig"):
             )
         else:
             if accelerator.is_main_process:
-                env = construct_env(sample_mode="random")
+                env = construct_env(sample_mode="sequential")
             worker_collect_loop(
                 env=env,
                 agent=agent,
