@@ -394,9 +394,9 @@ class AndroidEmulator():
         if screenshot is not None and self.evaluator is not None:
             print("Evaluating...")
             r = self.evaluator(os.path.join(self.temp_path, f"{self.image_id}_{self.steps}.png"), self.current_task)
-            if self.steps == 3:
-                r=True
-                print(".........force ...trajectories sucessfully return ")
+            #if self.steps == 3:
+            #    r=True
+            #    print(".........force ...trajectories sucessfully return ")
                 
             if r == -1:
                 r = 0
