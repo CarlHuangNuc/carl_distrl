@@ -11,10 +11,10 @@ class ImageFeatureExtractor:
         self.device = device
         
         # Initialize and load the BLIP2 model and processor
-        self.model = Blip2Model.from_pretrained("/mnt/huangke1/auto-UI/blip2-opt-2.7b").cpu()
+        self.model = Blip2Model.from_pretrained("/mnt/public/huangke1/auto-UI/blip2-opt-2.7b").cpu()
         self.model.language_model = None
         # self.model = self.model.to(self.device)
-        self.processor = AutoProcessor.from_pretrained("/mnt/huangke1/auto-UI/blip2-opt-2.7b")
+        self.processor = AutoProcessor.from_pretrained("/mnt/public/huangke1/auto-UI/blip2-opt-2.7b")
 
     def to_feat(self, image: Image.Image):
         """Converts a PIL image to a feature representation using the BLIP2 model.
