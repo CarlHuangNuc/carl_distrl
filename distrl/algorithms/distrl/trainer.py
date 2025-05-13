@@ -414,7 +414,7 @@ class DistRLTrainer():
             # action_bsize = 2 if 'mistral' in self.agent.policy_lm else replay_buffer.batch_size
             #action_bsize = replay_buffer.batch_size
             for _ in tqdm(range(self.actor_epochs), disable= not self.accelerator.is_main_process):
-                data = [replay_buffer.sample_sequence(self.sequence_length) for _ in range(self.grad_accum_steps*replay_buffer.batch_size)]
+                data = [replay_buffer.sample(1) for _ in range(self.grad_accum_steps*replay_buffer.batch_size)]
                 dataloader = DataLoader(DummyDataset(data), batch_size=action_bsize, shuffle=False, collate_fn=collate_fn)
                 all_pi_actions = []
                 all_advantages = []
@@ -430,7 +430,7 @@ class DistRLTrainer():
         info.update(dict_mean(info_list))
         if validation_buffer is not None:
             info_list = []
-            data = [validation_buffer.sample_sequence(self.sequence_length) for _ in range(self.grad_accum_steps*replay_buffer.batch_size)]
+            data = [validation_buffer.sample(1) for _ in range(self.grad_accum_steps*replay_buffer.batch_size)]
             dataloader = DataLoader(DummyDataset(data), batch_size=action_bsize, shuffle=False, collate_fn=collate_fn)
             dataloader = self.accelerator.prepare(dataloader)
             with torch.no_grad():
