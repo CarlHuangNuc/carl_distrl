@@ -21,27 +21,11 @@ class AutoUIAgent(torch.nn.Module):
                 cache_dir = '~/.cache', dropout = 0.5, TEMPLATE = None, use_lora=False,
                 do_sample = True, temperature = 1.0, max_new_tokens = 32, use_bfloat16 = False, eos_str = None):
         super(AutoUIAgent, self).__init__()
-        if use_bfloat16:
-            self.model = T5ForMultimodalGeneration.from_pretrained(policy_lm, cache_dir=cache_dir,
-                                                              torch_dtype = torch.bfloat16).to(device)
-        else:
-            self.model = T5ForMultimodalGeneration.from_pretrained(policy_lm, cache_dir=cache_dir).to(device)
-        if use_lora:
-            from peft import LoraConfig, TaskType, get_peft_model
-            lora_config = LoraConfig(
-                r=16,
-                target_modules=['q', 'k', 'v', 'o'],
-                task_type=TaskType.CAUSAL_LM,
-                lora_alpha=32,
-                lora_dropout=0.05
-            )
-            self.model = get_peft_model(self.model, lora_config)
-            print("Using LoRA")
-            self.model.print_trainable_parameters()
+
+        self.model = T5ForMultimodalGeneration.from_pretrained(policy_lm, cache_dir=cache_dir).to(device)
         self.template = TEMPLATE
         self.policy_lm = policy_lm
         self.critic = VLMDoubleCritic(device, accelerator, critic_lm = critic_lm, cache_dir = cache_dir, in_dim = 768, out_dim = 1)  
-        self.trajectory_critic = TrajectoryCritic(device, accelerator, critic_lm = critic_lm, cache_dir = cache_dir, in_dim = 768, out_dim = 1)
         self.target_critic = None
         self.tokenizer = AutoTokenizer.from_pretrained(policy_lm, trust_remote_code=True, cache_dir=cache_dir)
         self.tokenizer.truncation_side = 'left'
@@ -58,9 +42,6 @@ class AutoUIAgent(torch.nn.Module):
     
     def prepare(self):
         self.model = self.accelerator.prepare(self.model)
-        self.critic = self.accelerator.prepare(self.critic)
-        self.trajectory_critic = self.accelerator.prepare(self.trajectory_critic)
-
     def get_action(self, observation, image_features):
         image_features = image_features[..., -1408:]
         # if self.template is not None:
