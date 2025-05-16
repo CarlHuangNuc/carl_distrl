@@ -32,6 +32,7 @@ class BCTrainer():
         self.step = 0
         self.max_grad_norm = max_grad_norm
         self.accelerator = accelerator
+        self.time_index = 0                
     
     def prepare(self):
         self.lm_optimizer = self.accelerator.prepare(self.lm_optimizer)
