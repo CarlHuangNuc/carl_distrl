@@ -3,6 +3,8 @@ import transformers
 from tqdm import tqdm
 import copy
 import random
+import os
+import json
 from torch.utils.data import DataLoader
 from distrl.data import DummyDataset
 def dict_mean(dict_list):
@@ -74,6 +76,15 @@ class BCTrainer():
         #             'target_critic_state_dict': self.accelerator.unwrap_model(self.agent.target_critic).state_dict(),
         #             'critic_optimizer_state_dict': self.critic_optimizer.state_dict(),
         #             'lm_optimizer_state_dict': self.lm_optimizer.state_dict()}, path)
+    def save_policy(self, path):
+        os.makedirs(path, exist_ok=True)
+        weight_path = os.path.join(path, "model.pt")
+        info_path = os.path.join(path, "info.json")
 
+        self.accelerator.save_model(self.agent.model, weight_path, safe_serialization=False)
+        with open(info_path, "w", encoding="utf8") as f_out:
+            json.dump({"time_index": self.time_index}, f_out)
+            
+    
     def load(self, path):
         self.accelerator.load_state(path)
