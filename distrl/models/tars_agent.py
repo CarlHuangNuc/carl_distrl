@@ -16,11 +16,11 @@ class timeout:
     def __exit__(self, type, value, traceback):
         signal.alarm(0)
 
-class AutoUIAgent(torch.nn.Module):
+class TARSAgent(torch.nn.Module):
     def __init__(self, device, accelerator, policy_lm = "", critic_lm = "roberta-base", 
                 cache_dir = '~/.cache', dropout = 0.5, TEMPLATE = None, use_lora=False,
                 do_sample = True, temperature = 1.0, max_new_tokens = 32, use_bfloat16 = False, eos_str = None):
-        super(AutoUIAgent, self).__init__()
+        super(TARSAgent, self).__init__()
 
         self.model = T5ForMultimodalGeneration.from_pretrained(policy_lm, cache_dir=cache_dir).to(device)
         self.template = TEMPLATE
