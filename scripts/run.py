@@ -20,7 +20,7 @@ from accelerate import DistributedDataParallelKwargs, InitProcessGroupKwargs
 # transformers.logging.set_verbosity_error()
 
 from distrl.misc import colorful_print
-from distrl.models import AutoUIAgent
+from distrl.models import AutoUIAgent,TARSAgent
 from distrl.algorithms import offpolicy_train_loop, eval_loop, worker_collect_loop
 from distrl.environment import BatchedAndroidEnv
 from distrl.environment.android import EndResultEvaluator
@@ -30,7 +30,7 @@ from distrl.environment.android import autoui_translate_action
 logging.basicConfig(level=logging.WARNING)
 asyncssh.logging.set_log_level(logging.WARNING)
 # TODO: reduce accelerator logging
-
+use_tars = True
 
 def load_task_file(assets_path, task_set, task_split):
     all_tasks = []
@@ -58,11 +58,19 @@ def main(config: "DictConfig"):
     decode_f = lambda x:x
 
     # Make agent
-    agent = AutoUIAgent(device=device, accelerator=accelerator, 
+    if not use_tars:
+        agent = AutoUIAgent(device=device, accelerator=accelerator, 
                         temperature=config.temperature, do_sample=config.do_sample, 
                         policy_lm=config.policy_lm, critic_lm=config.critic_lm,
                         cache_dir=config.cache_dir, max_new_tokens=config.max_new_tokens,
                         use_lora=config.use_lora)
+    else:
+        agent = TARSAgent(device=device, accelerator=accelerator,
+                          temperature=config.temperature, do_sample=config.do_sample,
+                          policy_lm=config.policy_lm, critic_lm=config.critic_lm,
+                          cache_dir=config.cache_dir, max_new_tokens=config.max_new_tokens,
+                          use_lora=config.use_lora)
+        
     tokenizer = agent.tokenizer
 
     # Set up environtment parameters
