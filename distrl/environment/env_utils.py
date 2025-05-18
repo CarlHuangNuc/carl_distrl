@@ -151,7 +151,7 @@ def batch_interact_environment(agent, env, num_trajectories,\
                                     "reward": r, \
                                     "penalty": penalty, \
                                     "done": done, \
-                                    "action": action[i], \                   
+                                    "action": action[i], \
                                     "log_prob": log_prob[i]})
                                 batch_obs[i] = obs_dict
                             else:
