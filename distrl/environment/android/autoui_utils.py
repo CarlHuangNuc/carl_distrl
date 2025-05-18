@@ -4,7 +4,7 @@ from typing import List, Tuple, Union
 from transformers import Blip2VisionModel, AutoProcessor, Blip2Model
 import torch
 from PIL import Image
-
+use_tars = True
 class ImageFeatureExtractor:
     def __init__(self, device):
         # Set device based on CUDA availability
@@ -80,38 +80,74 @@ class AndroidAction():
 
 
 def autoui_translate_action(out):
-    action_str = out.split("Action Decision: ")[1]
-    action_type, touch_point_1, touch_point_2, lift_point_1, lift_point_2, typed_text = action_str.split(", ")
-    touch_point = touch_point_1 + ", " + touch_point_2
-    lift_point = lift_point_1 + ", " + lift_point_2
-    try:
-        action_type = action_type.split(": ")[1].strip('"')
-        if action_type == 'DUAL_POINT':
-            touch_point_yx = touch_point.split(": ")[1].strip('[]"')
-            touch_point_yx = [float(num) for num in touch_point_yx.split(", ")]
-            lift_point_yx = lift_point.split(": ")[1].strip('[]"')
-            lift_point_yx = [float(num) for num in lift_point_yx.split(", ")]
-            return AndroidAction(action_type=ActionType.DualPoint, touch_point=touch_point_yx[::-1], lift_point=lift_point_yx[::-1])
-        elif action_type == 'TYPE':
-            text = typed_text.split(": ")[1].strip('"')
-            return AndroidAction(action_type=ActionType.Type, typed_text=text)
-        elif action_type == 'PRESS_HOME':
-            return AndroidAction(action_type=ActionType.GoHome)
-        elif action_type == 'PRESS_BACK':
-            return AndroidAction(action_type=ActionType.GoBack)
-        elif action_type == 'PRESS_ENTER':
-            return AndroidAction(action_type=ActionType.Enter)
-        elif action_type == 'STATUS_TASK_COMPLETE':
-            return AndroidAction(action_type=ActionType.TaskComplete)
-        elif action_type == 'TASK_IMPOSSIBLE':
-            return AndroidAction(action_type=ActionType.TaskImpossible)
-        else:
-            print(f"Action {out} not supported yet.")
+    if not use_tars:
+        action_str = out.split("Action Decision: ")[1]
+        action_type, touch_point_1, touch_point_2, lift_point_1, lift_point_2, typed_text = action_str.split(", ")
+        touch_point = touch_point_1 + ", " + touch_point_2
+        lift_point = lift_point_1 + ", " + lift_point_2
+        try:
+            action_type = action_type.split(": ")[1].strip('"')
+            if action_type == 'DUAL_POINT':
+                touch_point_yx = touch_point.split(": ")[1].strip('[]"')
+                touch_point_yx = [float(num) for num in touch_point_yx.split(", ")]
+                lift_point_yx = lift_point.split(": ")[1].strip('[]"')
+                lift_point_yx = [float(num) for num in lift_point_yx.split(", ")]
+                return AndroidAction(action_type=ActionType.DualPoint, touch_point=touch_point_yx[::-1], lift_point=lift_point_yx[::-1])
+            elif action_type == 'TYPE':
+                text = typed_text.split(": ")[1].strip('"')
+                return AndroidAction(action_type=ActionType.Type, typed_text=text)
+            elif action_type == 'PRESS_HOME':
+                return AndroidAction(action_type=ActionType.GoHome)
+            elif action_type == 'PRESS_BACK':
+                return AndroidAction(action_type=ActionType.GoBack)
+            elif action_type == 'PRESS_ENTER':
+                return AndroidAction(action_type=ActionType.Enter)
+            elif action_type == 'STATUS_TASK_COMPLETE':
+                return AndroidAction(action_type=ActionType.TaskComplete)
+            elif action_type == 'TASK_IMPOSSIBLE':
+                return AndroidAction(action_type=ActionType.TaskImpossible)
+            else:
+                print(f"Action {out} not supported yet.")
+                return AndroidAction(action_type=ActionType.Idle)
+        except Exception as e:
+            print(f"Action {out} Parsing Error: {e}")
             return AndroidAction(action_type=ActionType.Idle)
-    except Exception as e:
-        print(f"Action {out} Parsing Error: {e}")
-        return AndroidAction(action_type=ActionType.Idle)
+    else:
+        import re
+        if "click(start_box=" in out:
+            match = re.search(r"\((\d+),\s*(\d+)\)", out)
+            if match:
+                x = int(match.group(1))
+                if x < 1020 and x > 1000:
+                    x=1003
+                    print("....force x ....-===1003")
+                y = int(match.group(2))
+                if y < 285 and y >270:
+                    y=280
+                    print("...force y .....==280")
+                print(f"提取到的坐标: ({x}, {y})")
+            else:
+                print("未找到匹配的坐标")
+            nor_x = x/1080.0
+            nor_y = y/2280.0
 
+            return AndroidAction(action_type=ActionType.DualPoint, touch_point=[nor_x,nor_y], lift_point=[nor_x,nor_y])
+        elif  "finished(" in out:
+            return AndroidAction(action_type=ActionType.TaskComplete)
+        elif "type(" in out:
+
+            match = re.search(r"content='([^']*)'", out)
+
+            if match:
+                content = match.group(1)
+                print(content)  # 输出: How big is a blue whale?
+            else:
+                print("未找到匹配的内容")
+
+            return AndroidAction(action_type=ActionType.Type, typed_text=content)
+        else:    
+            print("ddddddddddddddddddddddddddddddd")
+            print("current ...not support ..action space ")    
 def to_autoui(act: AndroidAction):
     if act.action_type == ActionType.DualPoint:
         return f'"action_type": "DUAL_POINT", "touch_point": "[{act.touch_point[1]:.4f}, {act.touch_point[0]:.4f}]", "lift_point": "[{act.lift_point[1]:.4f}, {act.lift_point[0]:.4f}]", "typed_text": ""'
