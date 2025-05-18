@@ -5,7 +5,7 @@ from tqdm import tqdm
 import numpy as np
 import accelerate
 from distrl.models import timeout
-
+use_tars = True
 def add_trajectory_reward(trajectory):
     """
     add trajectory reward to the dict of each interaction
@@ -87,7 +87,10 @@ def batch_interact_environment(agent, env, num_trajectories,\
                                 batch_img = ["Image feature is not a tensor" for _ in range(bsize)]
                             if env.feature_extractor is not None:
                                 # colorful_print("autoui has critic, so batch_obs being refractored", "red")
-                                batch_obs = [obs["prompt"] for obs in batch_obs]
+                                if not use_tars:
+                                    batch_obs = [obs["prompt"] for obs in batch_obs]
+                                else:
+                                    print("carl keep batch_obs")
                             reset_success[0] = True
                         accelerate.utils.broadcast(reset_success)
                         break
@@ -120,7 +123,8 @@ def batch_interact_environment(agent, env, num_trajectories,\
                         if env.feature_extractor is not None:
                             with torch.no_grad():
                                 action = agent.get_action(batch_obs, torch.cat([i.unsqueeze(0) for i in batch_img], dim = 0))
-                                log_prob = agent.get_log_prob(batch_obs, torch.cat([i.unsqueeze(0) for i in batch_img], dim = 0), action).sum(dim=1).flatten()
+                                if not use_tars:
+                                    log_prob = agent.get_log_prob(batch_obs, torch.cat([i.unsqueeze(0) for i in batch_img], dim = 0), action).sum(dim=1).flatten()
                         else:
                             with torch.no_grad():
                                 action = agent.get_action(batch_obs, None)
@@ -148,9 +152,13 @@ def batch_interact_environment(agent, env, num_trajectories,\
                                     "reward": r, \
                                     "penalty": penalty, \
                                     "done": done, \
-                                    "action": action[i], \
-                                    "log_prob": log_prob[i]})
-                                batch_obs[i] = obs_dict
+                                    "action": action[i], \                   
+                                    #"log_prob": log_prob[i]
+                                                       })
+                                if not use_tars:
+                                    batch_obs[i] = obs_dict
+                                else:
+                                    batch_obs[i] = obs_dict
                             else:
                                 trajectories[i].append({"observation": batch_obs[i], \
                                     "next_observation": next_obs, \
