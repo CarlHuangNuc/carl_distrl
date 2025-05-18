@@ -1,3 +1,4 @@
+Open Chrome app.
 Open a new window in the Chrome app.
 Open a new window in the Chrome app.
 Open a new window in the Chrome app.
