@@ -37,7 +37,7 @@ capacity: 10000 # replay buffer size
 batch_size: 2 # replay buffer sample batch size
 warmup_iter: 0 # how many iterations to only collect data and evaluate before training
 
-# start_checkpoint_path: '/home/distrl/models/ckpts/general-off2on-digirl'
+start_checkpoint_path: '/mnt/huangke1/huawei/backup_data/trainer_current_policy.pt'
 collect_num: 128
 
 offline_data_path: null
