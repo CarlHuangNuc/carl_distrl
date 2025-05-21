@@ -198,7 +198,8 @@ def offpolicy_train_loop(agent,
     agent.prepare()
     if start_checkpoint_path is not None:
         print(f">>> Load initial checkpoint from {start_checkpoint_path}...")
-        trainer.load(os.path.join(start_checkpoint_path, 'trainer.pt'))
+        #trainer.load(os.path.join(start_checkpoint_path, 'trainer.pt'))
+        trainer.load_policy(os.path.join(start_checkpoint_path))
     trainer.prepare()
 
     # Load offline data
