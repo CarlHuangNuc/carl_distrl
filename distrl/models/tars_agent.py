@@ -39,9 +39,9 @@ class TARSAgent(torch.nn.Module):
         self.critic = VLMDoubleCritic(device, accelerator, critic_lm = critic_lm, cache_dir = cache_dir, in_dim = 768, out_dim = 1)  
         self.target_critic = None
         self.tokenizer = AutoTokenizer.from_pretrained(policy_lm, trust_remote_code=True, cache_dir=cache_dir)
-        #self.tokenizer.truncation_side = 'left'
-        #self.tokenizer.pad_token = self.tokenizer.eos_token
-        #self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
+        self.tokenizer.truncation_side = 'left'
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
         self.device = device
         self.dropout = torch.nn.Dropout(p=dropout)
         self.softmax = torch.nn.Softmax(dim= -1)
@@ -50,8 +50,8 @@ class TARSAgent(torch.nn.Module):
         self.accelerator = accelerator
         self.max_new_tokens = max_new_tokens
         self.eos_str = eos_str
-        self.history = ""
-        self.MOBILE_USE = """You are a GUI agent. You are given a task and your action history, with video screenshots. You need to perform the next action to complete the task. your action must base on the last one frame of the video.
+        self.answer = ""
+        self.MOBILE_USE = """you are a GUI agent. You are given a task and your action history, with screenshots. You need to perform the next action to complete the task.
 ## Output Format
 ```
 Thought: ...
@@ -75,17 +75,8 @@ finished(content='xxx')
 
 ## User Instruction
 {instruction}
-"""
-        self.messages = [{"role": "user",
-            "content": [{"type": "video",                                                                                                                                       "video": [
-                                  ]
-                                  },
-                                  {"type": "text", 
-                                   "text": "Describe this image.",
-                                  },                                                                                                                                          ],
-                        }
-                    ]
-
+"""     
+        self.messages = []
 
     
     def prepare(self):
@@ -96,16 +87,28 @@ finished(content='xxx')
     def get_action(self, observation, image_features):
         image_path = observation[0]["image_path"]
         task = observation[0]["task"]
-        self.messages[0]["content"][0]["video"].append(image_path)
-        self.messages[0]["content"][1]["text"] = self.MOBILE_USE + "\nHistory Actions: " + self.history +"\nUser Instruction: " + task
+        
+        messages_example2 ={}
+        messages_example2["role"]="user"
+        messages_example2["content"]=[]
+        tmp_im={}
+        tmp_im["type"]="image"
+        tmp_im["image"]=image_path
+        messages_example2["content"].append(tmp_im)
+        tmp_te={}
+        tmp_te["type"]="text"
+        tmp_te["text"]=self.MOBILE_USE  +"\nUser Instruction: " + task
+        messages_example2["content"].append(tmp_te)
 
-        print("yyyyyyyyyyyyyyyyyyyyyyy")
-        print(self.history)
-        print(self.messages[0]["content"][0]["video"])
+    
+        self.messages.append(messages_example2)
+        print("length ..multi turn....==",len(self.messages)/2)
         for _ in range(3):
             try:
                 with timeout(seconds=120):
                     with torch.no_grad():
+                        print("promnt>>>>>>>>>>>>>>>>>>>>")
+                        print(self.messages)
                         text = self.processor.apply_chat_template(self.messages, tokenize=False, add_generation_prompt=True)
                         image_inputs, video_inputs = process_vision_info(self.messages)
                         inputs = self.processor(text=[text],images=image_inputs,videos=video_inputs,padding=True,return_tensors="pt",)
@@ -115,8 +118,11 @@ finished(content='xxx')
                         output_text = self.processor.batch_decode(generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False)
                         print(output_text)
                         raw_action = output_text[0].split("\nAction: ")[-1]
-                        self.history = self.history + "action:"+raw_action + " base on frame:"+image_path+";\n"
                         print(raw_action)
+                        mess_ans={}
+                        mess_ans["role"]="assistant"
+                        mess_ans["content"]=output_text[0]
+                        self.messages.append(mess_ans)
                         raw_action = [raw_action]
                     break
             except TimeoutError:
