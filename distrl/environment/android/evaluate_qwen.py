@@ -23,7 +23,6 @@ from openai import OpenAI
 def extract_status(text):
     match = re.search(r'Status:\s*(\w+)', text)
 
-    print("ccccccccccccccccccc..........................")
     if match:
         #return "success"
         return match.group(1)
@@ -102,7 +101,6 @@ def call_qwen(client, system_msg, prompt, image_list, image_path):
     response_text = response.choices[0].message.content
 
     print(response_text)
-    print("rrrrrrrrrrrrrrrrr ......carl .......auto evaluate ......")
     return response_text
 
 
