@@ -4,6 +4,7 @@ from typing import List, Tuple, Union
 from transformers import Blip2VisionModel, AutoProcessor, Blip2Model
 import torch
 from PIL import Image
+from time import sleep
 use_tars = True
 class ImageFeatureExtractor:
     def __init__(self, device):
@@ -145,6 +146,10 @@ def autoui_translate_action(out):
                 print("未找到匹配的内容")
 
             return AndroidAction(action_type=ActionType.Type, typed_text=content)
+        elif "wait(" in out:
+            sleep(5)
+            print("sleep 5 s")
+            return AndroidAction(action_type=ActionType.GoHome)        
         else:    
             print("ddddddddddddddddddddddddddddddd")
             print("current ...not support ..action space ")    
