@@ -81,13 +81,15 @@ finished(content='xxx')
     
     def prepare(self):
         print("to be define....")
-        #self.model = self.accelerator.prepare(self.model)
+        self.model = self.accelerator.prepare(self.model)
 
 
     def get_action(self, observation, image_features):
+        '''
         image_path = observation[0]["image_path"]
         task = observation[0]["task"]
-        
+       
+
         messages_example2 ={}
         messages_example2["role"]="user"
         messages_example2["content"]=[]
@@ -99,35 +101,21 @@ finished(content='xxx')
         tmp_te["type"]="text"
         tmp_te["text"]=self.MOBILE_USE  +"\nUser Instruction: " + task
         messages_example2["content"].append(tmp_te)
-
-    
-        #self.messages.append(messages_example2)
         self.msg_q.append(messages_example2)
+        '''
 
-        print("length ..multi turn....==",(len(list(self.msg_q))+1)/2)
+        #print("length ..multi turn....==",(len(list(self.msg_q))+1)/2)
         for _ in range(3):
             try:
                 with timeout(seconds=120):
                     with torch.no_grad():
-                        print("promnt>>>>>>>>>>>>>>>>>>>>")
-                        #print(self.messages)
-                        print(list(self.msg_q))
-                        text = self.processor.apply_chat_template(list(self.msg_q), tokenize=False, add_generation_prompt=True)
-                        image_inputs, video_inputs = process_vision_info(list(self.msg_q))
-                        inputs = self.processor(text=[text],images=image_inputs,videos=video_inputs,padding=True,return_tensors="pt",)
-                        inputs = inputs.to(self.device)
-
-                        text_token_count = inputs["input_ids"].shape[1]  # 形状为 [batch_size, seq_len]
-
-                        #visual_token_per_image = 256  # 具体取决于模型配置
-
-                        image_token_count = len(image_inputs) *10000
-                        total_token_count = text_token_count + image_token_count 
-                        print("tttttkkkkk,text_token_count   ",text_token_count)
-
+                        texts = [self.processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True) for msg in observation]
+                        image_inputs, video_inputs = process_vision_info(observation)
+                        inputs = self.processor(text=texts,images=image_inputs,videos=video_inputs,padding=True,return_tensors="pt",).to(self.device)
                         generated_ids = self.accelerator.unwrap_model(self.model).generate(**inputs, max_new_tokens=128).cpu()
                         generated_ids_trimmed = [out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)]
                         output_text = self.processor.batch_decode(generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False)
+                        '''
                         print(output_text)
                         raw_action = output_text[0].split("\nAction: ")[-1]
                         print(raw_action)
@@ -137,6 +125,8 @@ finished(content='xxx')
                         #self.messages.append(mess_ans)
                         self.msg_q.append(mess_ans)
                         raw_action = [raw_action]
+                        '''
+                        return output_text
                     break
             except TimeoutError:
                 print("Timeout while accessing actions")
