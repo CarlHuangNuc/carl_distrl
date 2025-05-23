@@ -7,7 +7,7 @@ import signal
 from transformers import Qwen2_5_VLForConditionalGeneration, AutoProcessor
 from qwen_vl_utils import process_vision_info
 import torch
-
+from collections import deque
 class timeout:
     def __init__(self, seconds=1, error_message='Timeout'):
         self.seconds = seconds
@@ -51,6 +51,7 @@ class TARSAgent(torch.nn.Module):
         self.max_new_tokens = max_new_tokens
         self.eos_str = eos_str
         self.answer = ""
+        self.msg_q = deque(maxlen=15)
         self.MOBILE_USE = """you are a GUI agent. You are given a task and your action history, with screenshots. You need to perform the next action to complete the task.
 ## Output Format
 ```
@@ -77,7 +78,6 @@ finished(content='xxx')
 {instruction}
 """     
         self.messages = []
-
     
     def prepare(self):
         print("to be define....")
@@ -101,18 +101,30 @@ finished(content='xxx')
         messages_example2["content"].append(tmp_te)
 
     
-        self.messages.append(messages_example2)
-        print("length ..multi turn....==",len(self.messages)/2)
+        #self.messages.append(messages_example2)
+        self.msg_q.append(messages_example2)
+
+        print("length ..multi turn....==",(len(list(self.msg_q))+1)/2)
         for _ in range(3):
             try:
                 with timeout(seconds=120):
                     with torch.no_grad():
                         print("promnt>>>>>>>>>>>>>>>>>>>>")
-                        print(self.messages)
-                        text = self.processor.apply_chat_template(self.messages, tokenize=False, add_generation_prompt=True)
-                        image_inputs, video_inputs = process_vision_info(self.messages)
+                        #print(self.messages)
+                        print(list(self.msg_q))
+                        text = self.processor.apply_chat_template(list(self.msg_q), tokenize=False, add_generation_prompt=True)
+                        image_inputs, video_inputs = process_vision_info(list(self.msg_q))
                         inputs = self.processor(text=[text],images=image_inputs,videos=video_inputs,padding=True,return_tensors="pt",)
                         inputs = inputs.to(self.device)
+
+                        text_token_count = inputs["input_ids"].shape[1]  # 形状为 [batch_size, seq_len]
+
+                        #visual_token_per_image = 256  # 具体取决于模型配置
+
+                        image_token_count = len(image_inputs) *10000
+                        total_token_count = text_token_count + image_token_count 
+                        print("tttttkkkkk,text_token_count   ",text_token_count)
+
                         generated_ids = self.accelerator.unwrap_model(self.model).generate(**inputs, max_new_tokens=128).cpu()
                         generated_ids_trimmed = [out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)]
                         output_text = self.processor.batch_decode(generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False)
@@ -122,7 +134,8 @@ finished(content='xxx')
                         mess_ans={}
                         mess_ans["role"]="assistant"
                         mess_ans["content"]=output_text[0]
-                        self.messages.append(mess_ans)
+                        #self.messages.append(mess_ans)
+                        self.msg_q.append(mess_ans)
                         raw_action = [raw_action]
                     break
             except TimeoutError:
