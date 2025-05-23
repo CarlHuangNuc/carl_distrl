@@ -20,6 +20,7 @@ import concurrent.futures
 import numpy as np
 import traceback
 
+from collections import deque
 
 def escape_shell_text(text):
     # List of characters to escape
@@ -246,8 +247,35 @@ class AndroidEmulator():
         self.prepare_prompt = prepare_prompt
         self.translate_action = translate_action
         self.history = []
-        self.evaluator = evaluator
 
+        self.MOBILE_USE = """you are a GUI agent. You are given a task and your action history, with screenshots. You need to perform the next action to complete the task.
+## Output Format
+```
+Thought: ...
+Action: ...
+```
+## Action Space
+
+click(start_box='<|box_start|>(x1,y1)<|box_end|>')
+long_press(start_box='<|box_start|>(x1,y1)<|box_end|>')
+type(content='') #If you want to submit your input, use "\\n" at the end of `content`.
+scroll(start_box='<|box_start|>(x1,y1)<|box_end|>', direction='down or up or right or left')
+open_app(app_name=\'\')
+drag(start_box='<|box_start|>(x1,y1)<|box_end|>', end_box='<|box_start|>(x3,y3)<|box_end|>')
+press_home()
+press_back()
+finished(content='xxx')
+
+## Note
+- Use {language} in `Thought` part.
+- Write a small plan and finally summarize your next action (with its target element) in one sentence in `Thought` part.
+
+## User Instruction
+{instruction}
+"""
+
+        self.msg_q = deque(maxlen=15)
+        self.evaluator = evaluator
         self.last_valid_action = None
         self.last_repetition_penalty = 0
     
@@ -304,10 +332,26 @@ class AndroidEmulator():
                     image = self.feature_extractor.to_feat(image)
                 # colorful_print(f"history: {self.history}", "green")
                 # colorful_print(f"prompt: {self.prepare_prompt(self.current_task, self.history)}", "yellow")
+                image_path = screenshot_path
+                task = self.current_task
+                messages_example2 ={}
+                messages_example2["role"]="user"
+                messages_example2["content"]=[]
+                tmp_im={}
+                tmp_im["type"]="image"
+                tmp_im["image"]=image_path
+                messages_example2["content"].append(tmp_im)
+                tmp_te={}
+                tmp_te["type"]="text"
+                tmp_te["text"]=self.MOBILE_USE  +"\nUser Instruction: " + task
+                messages_example2["content"].append(tmp_te)
+                self.msg_q.append(messages_example2)
+
                 return {"prompt": self.prepare_prompt(self.current_task, self.history),
                         "image_feature": image,
                         "task": self.current_task,
-                        "image_path": os.path.join(self.temp_path, f"{self.image_id}_{self.steps}.png")
+                        "image_path": os.path.join(self.temp_path, f"{self.image_id}_{self.steps}.png"),
+                        "msg_q": list(self.msg_q),
                 }
             except Exception as e:
                 print(f"Exception happened during screenshotting")
