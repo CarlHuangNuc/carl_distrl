@@ -6,6 +6,42 @@ import torch
 from PIL import Image
 from time import sleep
 use_tars = True
+
+from .ui_tars.action_parser import IMAGE_FACTOR, MIN_PIXELS, MAX_PIXELS, MAX_RATIO, parse_action_to_structure_output, parsing_response_to_pyautogui_code
+import re
+
+def round_by_factor(number: int, factor: int) -> int:
+    return round(number / factor) * factor
+
+
+def ceil_by_factor(number: int, factor: int) -> int:
+    return math.ceil(number / factor) * factor
+
+
+def floor_by_factor(number: int, factor: int) -> int:
+    return math.floor(number / factor) * factor
+
+
+def smart_resize(height: int,
+                width: int,
+                factor: int = IMAGE_FACTOR,
+                min_pixels: int = MIN_PIXELS,
+                max_pixels: int = MAX_PIXELS,) -> tuple[int, int]:
+    if max(height, width) / min(height, width) > MAX_RATIO:
+        raise ValueError(f"absolute aspect ratio must be smaller than {MAX_RATIO}, got {max(height, width) / min(height, width)}")
+    h_bar = max(factor, round_by_factor(height, factor))
+    w_bar = max(factor, round_by_factor(width, factor))
+    if h_bar * w_bar > max_pixels:
+        beta = math.sqrt((height * width) / max_pixels)
+        h_bar = floor_by_factor(height / beta, factor)
+        w_bar = floor_by_factor(width / beta, factor)
+    elif h_bar * w_bar < min_pixels:
+        beta = math.sqrt(min_pixels / (height * width))
+        h_bar = ceil_by_factor(height * beta, factor)
+        w_bar = ceil_by_factor(width * beta, factor)
+    return h_bar, w_bar
+
+
 class ImageFeatureExtractor:
     def __init__(self, device):
         # Set device based on CUDA availability
@@ -114,45 +150,51 @@ def autoui_translate_action(out):
             print(f"Action {out} Parsing Error: {e}")
             return AndroidAction(action_type=ActionType.Idle)
     else:
-        import re
-        if "click(start_box=" in out:
-            match = re.search(r"\((\d+),\s*(\d+)\)", out)
+        original_image_width, original_image_height = 1080, 2280
+        parsed_dict = parse_action_to_structure_output(out,factor=1000,
+                    origin_resized_height=original_image_height,
+                        origin_resized_width=original_image_width,
+                            model_type="qwen25vl")
+
+        print(parsed_dict)
+       
+        """
+        parsed_pyautogui_code = parsing_response_to_pyautogui_code(
+             responses=parsed_dict,
+                 image_height=original_image_height,
+                     image_width=original_image_width
+                     )
+        print(parsed_pyautogui_code)
+        """
+        ## for osworld sample interface 
+        if parsed_dict[0]["action_type"] == "click":
+            match = re.search(r'\[([\d\.]+),\s*([\d\.]+),\s*([\d\.]+),\s*([\d\.]+)\]', parsed_dict[0]["action_inputs"]["start_box"])
             if match:
-                x = int(match.group(1))
-                if x < 1020 and x > 1000:
-                    x=1003
-                    print("....force x ....-===1003")
-                y = int(match.group(2))
-                if y < 285 and y >270:
-                    y=280
-                    print("...force y .....==280")
-                print(f"提取到的坐标: ({x}, {y})")
+                x1 = float(match.group(1))
+                y1 = float(match.group(2))
+                x2 = float(match.group(3))
+                y2 = float(match.group(4))
+                #print(f"x1={x1}, y1={y1}, x2={x2}, y2={y2}")
             else:
                 print("未找到匹配的坐标")
-            nor_x = x/1080.0
-            nor_y = y/2280.0
-
+            nor_x = x1
+            nor_y = y1
+            print(nor_x)
+            print(nor_y)
             return AndroidAction(action_type=ActionType.DualPoint, touch_point=[nor_x,nor_y], lift_point=[nor_x,nor_y])
-        elif  "finished(" in out:
-            return AndroidAction(action_type=ActionType.TaskComplete)
-        elif "type(" in out:
+        elif parsed_dict[0]["action_type"] == "type":
+            return AndroidAction(action_type=ActionType.Type, typed_text=parsed_dict[0]["action_inputs"]["content"])
 
-            match = re.search(r"content='([^']*)'", out)
-
-            if match:
-                content = match.group(1)
-                print(content)  # 输出: How big is a blue whale?
-            else:
-                print("未找到匹配的内容")
-
-            return AndroidAction(action_type=ActionType.Type, typed_text=content)
-        elif "wait(" in out:
+        elif parsed_dict[0]["action_type"] == "wait":
             sleep(5)
-            print("sleep 5 s")
-            return AndroidAction(action_type=ActionType.GoHome)        
-        else:    
-            print("ddddddddddddddddddddddddddddddd")
-            print("current ...not support ..action space ")    
+            print("sleep ..........................")
+
+            return AndroidAction(action_type=ActionType.Enter)
+        else:
+            print("unknown ..... dddddddddddddddddddddddd..................")
+            exit()
+
+
 def to_autoui(act: AndroidAction):
     if act.action_type == ActionType.DualPoint:
         return f'"action_type": "DUAL_POINT", "touch_point": "[{act.touch_point[1]:.4f}, {act.touch_point[0]:.4f}]", "lift_point": "[{act.lift_point[1]:.4f}, {act.lift_point[0]:.4f}]", "typed_text": ""'
