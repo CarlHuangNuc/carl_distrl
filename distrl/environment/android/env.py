@@ -274,7 +274,7 @@ finished(content='xxx')
 {instruction}
 """
 
-        self.msg_q = deque(maxlen=15)
+        self.msg_q = deque(maxlen=11)
         self.evaluator = evaluator
         self.last_valid_action = None
         self.last_repetition_penalty = 0
