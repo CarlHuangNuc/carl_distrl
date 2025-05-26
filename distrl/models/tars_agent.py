@@ -50,8 +50,6 @@ class TARSAgent(torch.nn.Module):
         self.accelerator = accelerator
         self.max_new_tokens = max_new_tokens
         self.eos_str = eos_str
-        self.answer = ""
-        self.msg_q = deque(maxlen=15)
         self.MOBILE_USE = """you are a GUI agent. You are given a task and your action history, with screenshots. You need to perform the next action to complete the task.
 ## Output Format
 ```
@@ -82,51 +80,26 @@ finished(content='xxx')
     def prepare(self):
         print("to be define....")
         self.model = self.accelerator.prepare(self.model)
-        self.critic = self.accelerator.prepare(self.critic)
+        #self.critic = self.accelerator.prepare(self.critic)
 
 
     def get_action(self, observation, image_features):
-        '''
-        image_path = observation[0]["image_path"]
-        task = observation[0]["task"]
-       
-
-        messages_example2 ={}
-        messages_example2["role"]="user"
-        messages_example2["content"]=[]
-        tmp_im={}
-        tmp_im["type"]="image"
-        tmp_im["image"]=image_path
-        messages_example2["content"].append(tmp_im)
-        tmp_te={}
-        tmp_te["type"]="text"
-        tmp_te["text"]=self.MOBILE_USE  +"\nUser Instruction: " + task
-        messages_example2["content"].append(tmp_te)
-        self.msg_q.append(messages_example2)
-        '''
-
-        #print("length ..multi turn....==",(len(list(self.msg_q))+1)/2)
         for _ in range(3):
             try:
                 with timeout(seconds=120):
                     with torch.no_grad():
+                        print("prompt......")
+                        print(observation)
+                        print(len(observation[0]))
                         texts = [self.processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True) for msg in observation]
                         image_inputs, video_inputs = process_vision_info(observation)
                         inputs = self.processor(text=texts,images=image_inputs,videos=video_inputs,padding=True,return_tensors="pt",).to(self.device)
                         generated_ids = self.accelerator.unwrap_model(self.model).generate(**inputs, max_new_tokens=128).cpu()
                         generated_ids_trimmed = [out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)]
                         output_text = self.processor.batch_decode(generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False)
-                        '''
+                        print("output................")
                         print(output_text)
-                        raw_action = output_text[0].split("\nAction: ")[-1]
-                        print(raw_action)
-                        mess_ans={}
-                        mess_ans["role"]="assistant"
-                        mess_ans["content"]=output_text[0]
-                        #self.messages.append(mess_ans)
-                        self.msg_q.append(mess_ans)
-                        raw_action = [raw_action]
-                        '''
+
                         return output_text
                     break
             except TimeoutError:
