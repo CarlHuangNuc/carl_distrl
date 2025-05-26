@@ -82,6 +82,7 @@ finished(content='xxx')
     def prepare(self):
         print("to be define....")
         self.model = self.accelerator.prepare(self.model)
+        self.critic = self.accelerator.prepare(self.critic)
 
 
     def get_action(self, observation, image_features):
