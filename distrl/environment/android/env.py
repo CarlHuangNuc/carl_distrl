@@ -373,6 +373,11 @@ finished(content='xxx')
             action = AndroidAction(action_type=ActionType.TaskImpossible)
         self.history.append(action)
         self.steps += 1
+        mess_ans={}
+        mess_ans["role"]="assistant"
+        mess_ans["content"]=raw_action
+        self.msg_q.append(mess_ans)
+
         if self.steps > self.max_steps:
             action = AndroidAction(action_type=ActionType.TaskImpossible)
             cprint(colored(f"Terminate the Emulator: Max Steps Exceeded {self.max_steps}.", "red"))
@@ -437,6 +442,7 @@ finished(content='xxx')
 
         if screenshot is not None and self.evaluator is not None:
             print("Evaluating...")
+            print(self.current_task)
             r = self.evaluator(os.path.join(self.temp_path, f"{self.image_id}_{self.steps}.png"), self.current_task)
             #if self.steps == 3:
             #    r=True
