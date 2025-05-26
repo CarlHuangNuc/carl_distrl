@@ -171,7 +171,7 @@ def batch_interact_environment(agent, env, num_trajectories,\
                                 if not use_tars:
                                     batch_obs[i] = next_obs
                                 else:
-                                    batch_obs[i] = obs_dict[msg_q]
+                                    batch_obs[i] = obs_dict["msg_q"]
                             batch_img[i] = next_img
                             batch_done[i] = done
                     accelerate.utils.broadcast(batch_done)
