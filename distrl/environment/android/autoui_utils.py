@@ -184,15 +184,23 @@ def autoui_translate_action(out):
             return AndroidAction(action_type=ActionType.DualPoint, touch_point=[nor_x,nor_y], lift_point=[nor_x,nor_y])
         elif parsed_dict[0]["action_type"] == "type":
             return AndroidAction(action_type=ActionType.Type, typed_text=parsed_dict[0]["action_inputs"]["content"])
-
         elif parsed_dict[0]["action_type"] == "wait":
             sleep(5)
             print("sleep ..........................")
-
             return AndroidAction(action_type=ActionType.Enter)
+        elif parsed_dict[0]["action_type"] == 'PRESS_HOME':
+            return AndroidAction(action_type=ActionType.GoHome)
+        elif parsed_dict[0]["action_type"] == 'PRESS_BACK':
+            return AndroidAction(action_type=ActionType.GoBack)
+        elif parsed_dict[0]["action_type"]  == 'PRESS_ENTER':
+            return AndroidAction(action_type=ActionType.Enter)
+        elif parsed_dict[0]["action_type"] == 'STATUS_TASK_COMPLETE':
+            return AndroidAction(action_type=ActionType.TaskComplete)
+        elif parsed_dict[0]["action_type"] == 'TASK_IMPOSSIBLE':
+            return AndroidAction(action_type=ActionType.TaskImpossible)
         else:
-            print("unknown ..... dddddddddddddddddddddddd..................")
-            exit()
+            print("......................................................unknown ..... dddddddddddddddddddddddd..................")
+            return AndroidAction(action_type=ActionType.TaskImpossible)
 
 
 def to_autoui(act: AndroidAction):
